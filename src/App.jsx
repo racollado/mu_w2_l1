@@ -1,7 +1,12 @@
 import * as React from "react"
+import {useState} from "react"
 // IMPORT ANY NEEDED COMPONENTS HERE
 import { createDataSet } from "./data/dataset"
 import "./App.css"
+import Header from "./components/Header/Header"
+import Instructions from "./components/Instructions/Instructions"
+import Chip from "./components/Chip/Chip"
+import NutritionalLabel from "./components/NutritionalLabel/NutritionalLabel"
 
 // don't move this!
 export const appInfo = {
@@ -21,37 +26,70 @@ export const appInfo = {
 const { data, categories, restaurants } = createDataSet()
 
 export function App() {
+  const [activeCategory, setActiveCategory] = useState(null)
+  const [activeRestaurant, setActiveRestaurant] = useState(null)
+  let currentMenuItems = data.filter(item => item.food_category === activeCategory && 
+                                             item.restaurant === activeRestaurant);
+  const [activeMenuItem, setActiveMenuItem] = useState(null)
+
   return (
     <main className="App">
-      {/* CATEGORIES COLUMN */}
+      {/* YOUR CODE HERE */}
       <div className="CategoriesColumn col">
         <div className="categories options">
           <h2 className="title">Categories</h2>
-          {/* YOUR CODE HERE */}
+            {categories.map((category, idx) => (
+              <Chip onclick={() => {
+                setActiveCategory(category); 
+                setActiveMenuItem("");}
+              } 
+                    /* Clicking X doesn't work. Both onclick and onclickX are performed. */
+                    onclickX={() => setActiveCategory(null)}
+                    key={"cat " + idx} label={category} 
+                    isActive={activeCategory === category ? true : false}/>
+            ))}
         </div>
       </div>
 
       {/* MAIN COLUMN */}
       <div className="container">
-        {/* HEADER GOES HERE */}
+        <Header title={appInfo.title} tagline={appInfo.tagline} description={appInfo.description}/>
 
         {/* RESTAURANTS ROW */}
         <div className="RestaurantsRow">
           <h2 className="title">Restaurants</h2>
-          <div className="restaurants options">{/* YOUR CODE HERE */}</div>
+          <div className="restaurants options">
+            {restaurants.map((restaurant, idx) => (
+                <Chip onclick={() => {
+                  setActiveRestaurant(restaurant); 
+                  setActiveMenuItem("");}
+                } 
+                      /* Clicking X doesn't work. Both onclick and onclickX are performed. */
+                      onclickX={() => {setActiveRestaurant(null); console.log(activeRestaurant)}}
+                      key={"rest " + idx} label={restaurant} 
+                      isActive={activeRestaurant === restaurant ? true : false}/>
+              ))}
+          </div>
         </div>
 
-        {/* INSTRUCTIONS GO HERE */}
+        <Instructions instructions={appInfo.instructions.start}/>
 
         {/* MENU DISPLAY */}
         <div className="MenuDisplay display">
           <div className="MenuItemButtons menu-items">
             <h2 className="title">Menu Items</h2>
-            {/* YOUR CODE HERE */}
+            {currentMenuItems.map((item, idx) => (
+                <Chip onclick={() => setActiveMenuItem(item)} 
+                      key={"item " + idx} label={item.item_name} 
+                      isActive={activeMenuItem === item ? true : false}/>
+              ))}
           </div>
 
           {/* NUTRITION FACTS */}
-          <div className="NutritionFacts nutrition-facts">{/* YOUR CODE HERE */}</div>
+          <div className="NutritionFacts nutrition-facts">
+              {(activeCategory && activeRestaurant && activeMenuItem) ? 
+              (<NutritionalLabel item={activeMenuItem}/>) : (null) }
+          </div>
         </div>
 
         <div className="data-sources">
